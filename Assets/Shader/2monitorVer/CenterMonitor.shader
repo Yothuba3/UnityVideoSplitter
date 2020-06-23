@@ -1,9 +1,9 @@
-﻿Shader "Unlit/MirrorMonitor"
+﻿Shader "Unlit/CenterMonitor"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _ScrollSpeed ("ScrollSpeed", float) = 1.0
+        _ChannelSwap("ChannelSwap", RAnge(0.4, 0.6)) = 0.5
     }
     SubShader
     {
@@ -15,6 +15,7 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #define PI 3.141592
             // make fog work
             #pragma multi_compile_fog
 
@@ -35,7 +36,7 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _ScrollSpeed;
+            float _ChannelSwap;
 
             v2f vert (appdata v)
             {
@@ -49,8 +50,16 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 
-                i.uv.x = 1.0 - i.uv.x;
-                i.uv.y = (i.uv.y * 0.50) + 0.50 + _Time; 
+               half angle = 0.75 * PI * 2; //経過時間によって回転角が変わる
+                half angleCos = cos(angle);
+                half angleSin = sin(angle);
+                half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
+                float monitorSize = 540 / 1280.0;
+                float monitorSizeWithBlack20 = 425.0 / 1280.0;
+                i.uv.x = i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
+                _ChannelSwap = step(0.5, _ChannelSwap);
+                i.uv.y =i.uv.y * monitorSize; //+ monitorSizeWithBlack20 * step(1.0,_ChannelSwap);
+                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
                 fixed4 col = tex2D(_MainTex, i.uv);
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);

@@ -1,9 +1,8 @@
-﻿Shader "Unlit/monitor01_2"
+﻿Shader "Unlit/MirrorMonitor"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _ScrollSpeed ("ScrollSpeed", float) = 1.0
     }
     SubShader
     {
@@ -17,7 +16,7 @@
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
-            #define PI 3.141592 //PI定義
+            #define PI 3.141592
             #include "UnityCG.cginc"
 
             struct appdata
@@ -35,7 +34,6 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _ScrollSpeed;
 
             v2f vert (appdata v)
             {
@@ -47,14 +45,16 @@
             }
 
             fixed4 frag (v2f i) : SV_Target
-            {
-                half angle = frac(_Time.x) * PI * 2; //経過時間によって回転角が変わる
+            { 
+                half angle = 0.75 * PI * 2; //経過時間によって回転角が変わる
                 half angleCos = cos(angle);
                 half angleSin = sin(angle);
                 half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
-                
-                i.uv.x = i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
-                i.uv.y = (i.uv.y * 0.50) + 0.50; //i.uv.yに0.5を乗算することで、本来0~1のuv範囲を0~0.5に. +0.5することで0.5~1.0の範囲を参照(これで上半分が取得できる)
+
+                float monitorSize02 = 405.0 / 1280.0;
+                float monitorSizeWithBlack20 =  640/ 1280.0;
+                i.uv.x =1.0 -  i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
+                i.uv.y =i.uv.y * monitorSize02 + monitorSizeWithBlack20;
                 i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
                 fixed4 col = tex2D(_MainTex, i.uv);
                 // apply fog

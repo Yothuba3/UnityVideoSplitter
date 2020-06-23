@@ -1,9 +1,8 @@
-﻿Shader "Unlit/monitor02_2"
+﻿Shader "Unlit/LeftMonitor"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _ScrollSpeed ("ScrollSpeed", float) = 1.0
     }
     SubShader
     {
@@ -17,8 +16,8 @@
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
-
             #include "UnityCG.cginc"
+            #define PI 3.141592 //PI定義
 
             struct appdata
             {
@@ -48,9 +47,15 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                
-                i.uv.x = i.uv.x; //縦に二枚分割の構成なのでx方向は特に処理しない
-                i.uv.y = i.uv.y * 0.50;  //0.50をかけることで範囲を0.0 ~ 0.5に限定(これでRenderTextureの下半分が取得できる)
+                half angle = 0.75 * PI * 2; //経過時間によって回転角が変わる
+                half angleCos = cos(angle);
+                half angleSin = sin(angle);
+                half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
+                float monitorSize02 = 405.0 / 1280.0;
+                float monitorSizeWithBlack20 =  640/ 1280.0;
+                i.uv.x = i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
+                i.uv.y =i.uv.y * monitorSize02 + monitorSizeWithBlack20;
+                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
                 fixed4 col = tex2D(_MainTex, i.uv);
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
