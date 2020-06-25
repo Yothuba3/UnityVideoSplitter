@@ -3,13 +3,13 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _ChannelSwap("ChannelSwap", RAnge(0.4, 0.6)) = 0.5
+        _Alpha("透明度", Range(0.0, 1.0)) = 0.5
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 100
-
+        Blend  One OneMinusSrcAlpha
         Pass
         {
             CGPROGRAM
@@ -36,7 +36,7 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _ChannelSwap;
+            fixed _Alpha;
 
             v2f vert (appdata v)
             {
@@ -49,19 +49,16 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
+                half2x2 rotateUV = half2x2(0, 1 , -1, 0);  //回転行列作成(270度回転)
+                float monitorSize = 0.421875;              //映像一つの解像度 / 合成した映像の解像度
+                float monitorSizeWithBlack = 0.578125; //スキップしたい映像一つの解像度(黒帯つき) / 合成した映像の解像度
                 
-               half angle = 0.75 * PI * 2; //経過時間によって回転角が変わる
-                half angleCos = cos(angle);
-                half angleSin = sin(angle);
-                half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
-                float monitorSize = 540 / 1280.0;
-                float monitorSizeWithBlack20 = 425.0 / 1280.0;
-                i.uv.x = i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
-                _ChannelSwap = step(0.5, _ChannelSwap);
-                i.uv.y =i.uv.y * monitorSize; //+ monitorSizeWithBlack20 * step(1.0,_ChannelSwap);
-                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                i.uv.x = i.uv.x * monitorSize + monitorSizeWithBlack; 
+                i.uv.y =i.uv.y; 
+                
                 fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
+                col.a = _Alpha;  //透明度変更
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }

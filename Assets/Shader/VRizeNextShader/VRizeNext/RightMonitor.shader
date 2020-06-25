@@ -3,6 +3,7 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        
     }
     SubShader
     {
@@ -46,17 +47,30 @@
 
             fixed4 frag (v2f i) : SV_Target
             { 
-                half angle = 0.75 * PI * 2; //経過時間によって回転角が変わる
+                half angle = 1.5 * PI; //経過時間によって回転角が変わる
                 half angleCos = cos(angle);
                 half angleSin = sin(angle);
                 half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
 
                 float monitorSize02 = 405.0 / 1280.0;
                 float monitorSizeWithBlack20 =  640/ 1280.0;
-                i.uv.x =1.0 -  i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
+
+                float2 UVForInverseSystem = i.uv;
+                UVForInverseSystem.x = 0.1;
+                UVForInverseSystem.y = 0.99;
+                UVForInverseSystem = mul(UVForInverseSystem - 0.5, rotateUV) + 0.5;
+                fixed4 InverseSystemCol = tex2D(_MainTex, UVForInverseSystem);
+                fixed isSwap = step(0.5, InverseSystemCol.r);
+
+                i.uv.x = 1.0 - i.uv.x - (isSwap * (1.0 - i.uv.x - i.uv.x ) );
                 i.uv.y =i.uv.y * monitorSize02 + monitorSizeWithBlack20;
-                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                i.uv = mul(i.uv -0.5, rotateUV) + 0.5;
+                i.uv.y = i.uv.y; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
                 fixed4 col = tex2D(_MainTex, i.uv);
+                // i.uv.x = 0;
+                // i.uv.y = 0.99;
+                //  i.uv = mul(i.uv - 0.5, rotateUV) + 0.5;
+                // col = tex2D(_MainTex, i.uv);
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44846487, g: 0.4985031, b: 0.5756387, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -175,13 +175,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 170076733}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.86987287, y: -0.25087592, z: -0.06362857, w: 0.41992137}
   m_LocalPosition: {x: -15.59, y: 3, z: -9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 44.317, y: -153.30801, z: -136.787}
 --- !u!114 &170076736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 246735981}
   - component: {fileID: 246735980}
   m_Layer: 0
-  m_Name: Monitor02
+  m_Name: CenterMonitor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -279,9 +279,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 246735979}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 2.61, y: -0, z: -2.84}
-  m_LocalScale: {x: 1.76404, y: 0.46852902, z: 1.32303}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 3.95, y: -0.92, z: -2.84}
+  m_LocalScale: {x: 1.76404, y: 0.4685295, z: 1.323031}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -520,7 +520,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 779769917}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e8b2d175a64598488e0722e35c7643f, type: 3}
   m_Name: 
@@ -538,7 +538,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 779769917}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: f9ebaac08f6f35542b2b22bea4f3b602, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: 79fb14128069dbc47a8bca0b02a93dd6, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -591,7 +591,7 @@ GameObject:
   - component: {fileID: 1383570488}
   - component: {fileID: 1383570487}
   m_Layer: 0
-  m_Name: Monitor01
+  m_Name: LeftMonitor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -664,7 +664,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1383570485}
   m_LocalRotation: {x: 0.6830127, y: -0.18301274, z: 0.18301274, w: 0.6830127}
-  m_LocalPosition: {x: 18.94, y: 0, z: 2.74}
+  m_LocalPosition: {x: 25.53, y: 0.11, z: -2.96}
   m_LocalScale: {x: 1.6, y: 1, z: 0.9}
   m_Children: []
   m_Father: {fileID: 0}
@@ -683,7 +683,7 @@ GameObject:
   - component: {fileID: 1741168193}
   - component: {fileID: 1741168192}
   m_Layer: 0
-  m_Name: MirrorMonitor
+  m_Name: RightMonitor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -756,7 +756,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1741168191}
   m_LocalRotation: {x: 0.6830128, y: 0.18301266, z: -0.18301266, w: 0.68301266}
-  m_LocalPosition: {x: -13.74, y: -0, z: 1.89}
+  m_LocalPosition: {x: -17.28, y: -0, z: -3.74}
   m_LocalScale: {x: 1.6, y: 1, z: 0.9}
   m_Children: []
   m_Father: {fileID: 0}
