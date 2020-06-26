@@ -16,8 +16,8 @@
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
+            #define PI 3.141592
             #include "UnityCG.cginc"
-            #define PI 3.141592 //PI定義
 
             struct appdata
             {
@@ -34,7 +34,13 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _ScrollSpeed;
+
+            //動画上に反転フラグが存在するかどうか(仮置き)
+            fixed isSwap(half2x2 rotateUV)
+            {
+                float2 uvForInverseSystem = float2(0.092, 0.25);   //仮のUV値 ちょうど左の黒帯の下半分のど真ん中あたり
+                return step(0.5,  tex2D(_MainTex, uvForInverseSystem).r); //rgbのrの値をフラグとして扱う(仮)
+            }
 
             v2f vert (appdata v)
             {
@@ -47,16 +53,16 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                half angle = 0.75 * PI * 2; //経過時間によって回転角が変わる
-                half angleCos = cos(angle);
-                half angleSin = sin(angle);
-                half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
-                float monitorSize02 = 405.0 / 1280.0;
-                float monitorSizeWithBlack20 =  640/ 1280.0;
-                i.uv.x = i.uv.x; //縦二枚に分割するのでx方向についてはそのまま
-                i.uv.y =i.uv.y * monitorSize02 + monitorSizeWithBlack20;
-                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                half2x2 rotateUV = half2x2(0, 1 , -1, 0);  //回転行列作成(270度回転)
+                float monitorSize02 = 0.31640625;          //取得したい映像の解像度 / 全体の映像の解像度
+                float skipSize =  0.18359375;             //スキップしたい部分の解像度 / 全体の映像の解像度
+                
+                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                //映像の取得範囲指定
+                i.uv.x = i.uv.x * monitorSize02 + skipSize;
+                i.uv.y =i.uv.y + (isSwap(rotateUV) * (1.0 - i.uv.y - i.uv.y ));
                 fixed4 col = tex2D(_MainTex, i.uv);
+                
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

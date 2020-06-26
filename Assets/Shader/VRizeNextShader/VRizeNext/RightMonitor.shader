@@ -3,7 +3,6 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        
     }
     SubShader
     {
@@ -36,6 +35,13 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+            //動画上に反転フラグが存在するかどうか(仮置き)
+            fixed isSwap(half2x2 rotateUV)
+            {
+                float2 uvForInverseSystem = float2(0.092, 0.75);   //仮のUV値 ちょうど左の黒帯の上半分のど真ん中あたり
+                return step(0.5,  tex2D(_MainTex, uvForInverseSystem).r); //rgbのrの値をフラグとして扱う(仮)
+            }
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -47,30 +53,16 @@
 
             fixed4 frag (v2f i) : SV_Target
             { 
-                half angle = 1.5 * PI; //経過時間によって回転角が変わる
-                half angleCos = cos(angle);
-                half angleSin = sin(angle);
-                half2x2 rotateUV = half2x2(angleCos, -angleSin, angleSin, angleCos);//回転行列作成
-
-                float monitorSize02 = 405.0 / 1280.0;
-                float monitorSizeWithBlack20 =  640/ 1280.0;
-
-                float2 UVForInverseSystem = i.uv;
-                UVForInverseSystem.x = 0.1;
-                UVForInverseSystem.y = 0.99;
-                UVForInverseSystem = mul(UVForInverseSystem - 0.5, rotateUV) + 0.5;
-                fixed4 InverseSystemCol = tex2D(_MainTex, UVForInverseSystem);
-                fixed isSwap = step(0.5, InverseSystemCol.r);
-
-                i.uv.x = 1.0 - i.uv.x - (isSwap * (1.0 - i.uv.x - i.uv.x ) );
-                i.uv.y =i.uv.y * monitorSize02 + monitorSizeWithBlack20;
-                i.uv = mul(i.uv -0.5, rotateUV) + 0.5;
-                i.uv.y = i.uv.y; //参照範囲を決定したうえで回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                half2x2 rotateUV = half2x2(0, 1 , -1, 0);  //回転行列作成(270度回転)
+                float monitorSize02 = 0.31640625;          //取得したい映像の解像度 / 全体の映像の解像度
+                float skipSize =  0.18359375;             //スキップしたい部分の解像度 / 全体の映像の解像度
+                
+                i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
+                //映像の取得範囲指定
+                i.uv.x = i.uv.x * monitorSize02 + skipSize; 
+                i.uv.y = 1.0 - i.uv.y - (isSwap(rotateUV) * (1.0 - i.uv.y - i.uv.y ));
                 fixed4 col = tex2D(_MainTex, i.uv);
-                // i.uv.x = 0;
-                // i.uv.y = 0.99;
-                //  i.uv = mul(i.uv - 0.5, rotateUV) + 0.5;
-                // col = tex2D(_MainTex, i.uv);
+                
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

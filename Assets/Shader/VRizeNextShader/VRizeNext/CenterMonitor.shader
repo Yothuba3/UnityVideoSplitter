@@ -50,12 +50,12 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 half2x2 rotateUV = half2x2(0, 1 , -1, 0);  //回転行列作成(270度回転)
-                float monitorSize = 0.421875;              //映像一つの解像度 / 合成した映像の解像度
-                float monitorSizeWithBlack = 0.578125; //スキップしたい映像一つの解像度(黒帯つき) / 合成した映像の解像度
+                float monitorSize01 = 0.421875;            //映像一つの解像度 / 全体の映像の解像度
+                float skipSize = 0.578125;        //スキップしたい部分の解像度 / 全体の映像の解像度
                 
                 i.uv = mul(i.uv - 0.5, rotateUV) + 0.5; //回転行列によって回転(-0.5しているのは原点中心に回転させるため。+0.5で回転後にuv座標がもとに位置に戻るよう修正)
-                i.uv.x = i.uv.x * monitorSize + monitorSizeWithBlack; 
-                i.uv.y =i.uv.y; 
+                //映像の取得範囲指定
+                i.uv.x = i.uv.x * monitorSize01 + skipSize; 
                 
                 fixed4 col = tex2D(_MainTex, i.uv);
                 col.a = _Alpha;  //透明度変更
